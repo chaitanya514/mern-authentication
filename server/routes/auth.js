@@ -32,12 +32,33 @@ router.post("/", async (req, res) => {
             })
         }).catch(err => {
             console.log("Error caught", err)
-            res.status(500).json({ msg: `User ${err.keyvalue['username']} already exists  ` })
+            res.status(500).json({ msg: `User ${err.keyvalue['username']} already exists `})
         })
 
 })
 
 router.post("/login",(req,res)=>{
-    const {username,pass}
+    const {username,password} = req.body;
+
+    User.findOne({username})
+    .then(user=>{   
+        if(!user){
+            res.status(500).json({msg:`no user fond with this ${username}`})
+        }else if(!bcrypt.compareSync(password, user.passwordHash)){
+            res.status(500).json({msg:"password does not match"})
+        }
+        jwt.sign({
+            username: newUser.username
+        }, 'secret', (err, token) => {
+            if (err) throw err;
+            res.send({
+                username: user.username
+            })
+        })
+    }).catch(err=>{
+        console.log(err);
+        res.status(500).send(err);
+    })
+
 
 })
